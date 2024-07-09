@@ -1,12 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-type Props = {}
-
-export const Index = (props: Props) => {
+export const Index = () => {
   return (
-    <View>
-      <Text>Hello, Plannit!</Text>
+    <View className="flex-1 justify-center items-center">
+      <Text className='text-zinc-400'>Hello, Plannit!</Text>
     </View>
   )
 }
