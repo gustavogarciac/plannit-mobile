@@ -14,4 +14,9 @@ export const colors = {
     300: "#BEF264",
     950: "#1A2E05",
   },
+
+  purple: {
+    300: "#BF94FF",
+    950: "#1A0B2E",
+  },
 }
