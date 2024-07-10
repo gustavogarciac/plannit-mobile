@@ -1,13 +1,13 @@
 import "@/styles/global.css"
 
 import { Slot } from 'expo-router'
-import { ActivityIndicator, StatusBar, Text, View } from "react-native"
+import { StatusBar, View } from "react-native"
 
-import { 
-  useFonts, 
-  Inter_500Medium, 
-  Inter_400Regular, 
-  Inter_600SemiBold  
+import {
+  useFonts,
+  Inter_500Medium,
+  Inter_400Regular,
+  Inter_600SemiBold
 } from "@expo-google-fonts/inter"
 
 import { Loading } from "@/components/loading"

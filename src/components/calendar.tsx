@@ -22,13 +22,13 @@ export function Calendar({ ...rest }: CalendarProps) {
       }}
       theme={{
         textMonthFontSize: 18,
-        selectedDayBackgroundColor: colors.lime[300],
+        selectedDayBackgroundColor: colors.purple[300],
         selectedDayTextColor: colors.zinc[900],
         textDayFontFamily: fontFamily.regular,
         monthTextColor: colors.zinc[200],
         arrowColor: colors.zinc[400],
         agendaDayNumColor: colors.zinc[200],
-        todayTextColor: colors.lime[300],
+        todayTextColor: colors.purple[300],
         textDisabledColor: colors.zinc[500],
         calendarBackground: "transparent",
         textDayStyle: { color: colors.zinc[200] },
