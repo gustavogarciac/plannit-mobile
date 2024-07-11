@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { router, useLocalSearchParams } from 'expo-router'
 import { CalendarIcon, CalendarRange, Info, MapPin, Settings2 } from 'lucide-react-native'
 import React, { useEffect, useState } from 'react'
-import { Alert, Keyboard, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Keyboard, Text, TouchableOpacity, View } from 'react-native'
 import { DateData } from 'react-native-calendars'
 import { Activities } from './activities'
 import { Details } from './details'
@@ -120,6 +120,10 @@ const Trip = () => {
 
   return (
     <View className="flex-1 px-5 pt-16">
+      <Image 
+        source={require("@/assets/bg.png")}
+        className='absolute inset-y-1/2 inset-x-1/2 -translate-y-1/2 -translate-x-1/2'
+      />
       <Input variant='tertiary'>
         <MapPin color={colors.zinc[400]} size={20} />
 
