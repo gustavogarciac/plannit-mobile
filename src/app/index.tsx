@@ -1,5 +1,5 @@
 import { Input, InputField } from '@/components/input'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Image, Keyboard, Text, View } from 'react-native'
 
 import { Button, ButtonTitle } from '@/components/button'
@@ -15,6 +15,7 @@ import { ArrowRight, AtSign, CalendarIcon, MapPin, Settings2, UserRoundPlus } fr
 import { DateData } from 'react-native-calendars'
 import { router } from 'expo-router'
 import { tripServer } from '@/server/trip-server'
+import { Loading } from '@/components/loading'
 
 enum StepForm {
   TRIP_DETAILS = 1,
@@ -34,6 +35,7 @@ export const Index = () => {
   const [emailToInvite, setEmailToInvite] = useState<string>("")
   const [emailsToInvite, setEmailsToInvite] = useState<string[]>([])
   const [isCreatingTrip, setIsCreatingTrip] = useState<boolean>(false)
+  const [isGettingTrip, setIsGettingTrip] = useState<boolean>(true)
   const [showModal, setShowModal] = useState<MODAL>(MODAL.NONE)
 
   function handleNextStepForm() {
@@ -140,6 +142,30 @@ export const Index = () => {
     }
   }
 
+  async function getTrip() {
+    try {
+      const tripId = await tripStorage.get()
+
+      if (!tripId) return setIsGettingTrip(false)
+
+      const trip = await tripServer.getById(tripId)
+
+      if(trip) {
+        router.navigate(`/trip/${trip.id}`)
+      }
+    } catch (error) {
+      setIsGettingTrip(false)
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getTrip()
+  }, [])
+  
+  if(isGettingTrip) {
+    return <Loading />
+  }
 
   return (
     <View className="flex-1 justify-center items-center px-5">
