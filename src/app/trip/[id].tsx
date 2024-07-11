@@ -124,6 +124,7 @@ const Trip = () => {
         source={require("@/assets/bg.png")}
         className='absolute inset-y-1/2 inset-x-1/2 -translate-y-1/2 -translate-x-1/2'
       />
+      
       <Input variant='tertiary'>
         <MapPin color={colors.zinc[400]} size={20} />
 
