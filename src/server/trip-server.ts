@@ -22,15 +22,20 @@ async function getById(id: string) {
   }
 }
 
-async function create({ destination, ends_at, starts_at, emails_to_invite } : TripCreateRequest) {
+async function create({
+  destination,
+  starts_at,
+  ends_at,
+  emails_to_invite,
+}: TripCreateRequest) {
   try {
-    const { data } = await api.post<{ tripId: string }>('/trips', {
+    const { data } = await api.post<{ tripId: string }>("/trips", {
       destination,
       starts_at,
       ends_at,
       emails_to_invite,
-      owner_name: 'Gustavo Garcia',
-      owner_email: 'gustavo@email.com'
+      owner_name: "Rodrigo Gonçalves",
+      owner_email: "rodrigo.rgtic@gmail.com",
     })
 
     return data.tripId

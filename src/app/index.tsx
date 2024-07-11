@@ -4,14 +4,17 @@ import { Alert, Image, Keyboard, Text, View } from 'react-native'
 
 import { Button, ButtonTitle } from '@/components/button'
 import { Calendar } from '@/components/calendar'
+import { GuestEmail } from '@/components/email'
 import { Modal } from '@/components/modal'
+import { tripStorage } from '@/storage/trip'
 import { colors } from '@/styles/colors'
 import { calendarUtils, DatesSelected } from '@/utils/calendarUtils'
+import { validateInput } from '@/utils/validateInput'
+import dayjs from 'dayjs'
 import { ArrowRight, AtSign, CalendarIcon, MapPin, Settings2, UserRoundPlus } from "lucide-react-native"
 import { DateData } from 'react-native-calendars'
-import dayjs from 'dayjs'
-import { GuestEmail } from '@/components/email'
-import { validateInput } from '@/utils/validateInput'
+import { router } from 'expo-router'
+import { tripServer } from '@/server/trip-server'
 
 enum StepForm {
   TRIP_DETAILS = 1,
@@ -30,20 +33,42 @@ export const Index = () => {
   const [destination, setDestination] = useState<string>("")
   const [emailToInvite, setEmailToInvite] = useState<string>("")
   const [emailsToInvite, setEmailsToInvite] = useState<string[]>([])
-
+  const [isCreatingTrip, setIsCreatingTrip] = useState<boolean>(false)
   const [showModal, setShowModal] = useState<MODAL>(MODAL.NONE)
 
   function handleNextStepForm() {
-    if (destination.trim().length === 0 || !selectedDates.startsAt || !selectedDates.endsAt) {
-      return Alert.alert("Trip details", "Fill in all trip details to proceed.")
+    if (
+      destination.trim().length === 0 ||
+      !selectedDates.startsAt ||
+      !selectedDates.endsAt
+    ) {
+      return Alert.alert(
+        "Detalhes da viagem",
+        "Preencha todos as informações da viagem para seguir."
+      )
     }
 
     if (destination.length < 4) {
-      return Alert.alert("Trip details", "Trip destination must have at least 4 characters.")
+      return Alert.alert(
+        "Detalhes da viagem",
+        "O destino deve ter pelo menos 4 caracteres."
+      )
     }
 
-    if (formStep === StepForm.ADD_EMAILS) return
-    setFormStep((prev) => prev + 1)
+    if (formStep === StepForm.TRIP_DETAILS) {
+      return setFormStep(StepForm.ADD_EMAILS)
+    }
+
+    Alert.alert("New trip", "Confirm trip?", [
+      {
+        text: 'No',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes',
+        onPress: createTrip
+      }
+    ])
   }
 
   function handlePreviousStepForm() {
@@ -83,9 +108,35 @@ export const Index = () => {
 
   async function saveTrip(tripId: string) {
     try {
-      
+      await tripStorage.save(tripId)
+      router.navigate(`/trip/${tripId}`)
     } catch (error) {
-      throw error
+      Alert.alert("Saving trip", "It was not possible to save the trip. Try again later.")
+      console.log(error)
+    }
+  }
+
+  async function createTrip() {
+    try {
+      setIsCreatingTrip(true)
+
+      const tripId = await tripServer.create({
+        destination,
+        starts_at: dayjs(selectedDates.startsAt?.dateString).toString(),
+        ends_at: dayjs(selectedDates.endsAt?.dateString).toString(),
+        emails_to_invite: emailsToInvite
+      })
+
+      Alert.alert("New trip", 'Trip created successfully!', [
+        {
+          text: "Ok, continue.",
+          onPress: () => saveTrip(tripId)
+        }
+      ])
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsCreatingTrip(false)
     }
   }
 
@@ -159,11 +210,9 @@ export const Index = () => {
           </>
         )}
 
-        <Button onPress={handleNextStepForm}>
+        <Button onPress={handleNextStepForm} isLoading={isCreatingTrip}>
           <ButtonTitle>
-            <Text>
               {formStep === StepForm.TRIP_DETAILS ? "Next" : "Confirm trip"}
-            </Text>
           </ButtonTitle>
           <ArrowRight size={20} color={colors.purple[950]} />
         </Button>
@@ -219,7 +268,7 @@ export const Index = () => {
             <InputField
               placeholder="Type guest's email."
               keyboardType="email-address"
-              onChangeText={(t) => setEmailToInvite(t.toLowerCase())}
+              onChangeText={setEmailToInvite}
               value={emailToInvite}
               returnKeyType='send'
               onSubmitEditing={handleAddEmail}
