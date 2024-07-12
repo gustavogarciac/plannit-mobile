@@ -30,6 +30,7 @@ const Button = ({
   return (
     <TouchableOpacity 
       style={{
+        flex: 1,
         height: 44,
         flexDirection: "row",
         alignItems: "center",
@@ -37,7 +38,6 @@ const Button = ({
         borderRadius: 8,
         paddingHorizontal: 8,
         gap: 8,
-        flex: 1,
         backgroundColor: variant === "primary" ? "#d8b4fe" : colors.zinc[800],
       }}
       activeOpacity={0.7}
