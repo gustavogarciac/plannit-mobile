@@ -8,12 +8,15 @@ import { colors } from '@/styles/colors'
 import { calendarUtils, DatesSelected } from '@/utils/calendarUtils'
 import dayjs from 'dayjs'
 import { router, useLocalSearchParams } from 'expo-router'
-import { CalendarIcon, CalendarRange, Info, MapPin, Settings2 } from 'lucide-react-native'
+import { CalendarIcon, CalendarRange, Info, Mail, MapPin, Settings2, User } from 'lucide-react-native'
 import React, { useEffect, useState } from 'react'
 import { Alert, Image, Keyboard, Text, TouchableOpacity, View } from 'react-native'
 import { DateData } from 'react-native-calendars'
 import { Activities } from './activities'
 import { Details } from './details'
+import { validateInput } from '@/utils/validateInput'
+import { participantsServer } from '@/server/participants-server'
+import { tripStorage } from '@/storage/trip'
 
 export type TripData = TripDetails & { when: string }
 
@@ -21,10 +24,11 @@ enum MODAL {
   NONE = 0,
   UPDATE_TRIP = 1,
   CALENDAR = 2,
+  CONFIRM_ATTENDANCE = 3,
 }
 
 const Trip = () => {
-  const { id: tripId } = useLocalSearchParams<{ id: string }>()
+  const { id: tripId, participant } = useLocalSearchParams<{ id: string, participant?: string }>()
 
   if (!tripId) {
     return router.back()
@@ -37,6 +41,9 @@ const Trip = () => {
   const [showModal, setShowModal] = useState<MODAL>(MODAL.NONE)
   const [destination, setDestination] = useState<string>('')
   const [selectedDates, setSelectedDate] = useState<DatesSelected>({} as DatesSelected)
+  const [guestName, setGuestName] = useState<string>('')
+  const [guestEmail, setGuestEmail] = useState<string>('')
+  const [isConfirmingAttendance, setIsConfirmingAttendance] = useState(false)
 
   async function getTripDetails() {
     try {
@@ -107,6 +114,34 @@ const Trip = () => {
       console.log(error)
     } finally {
       setIsUpdatingTrip(false)
+    }
+  }
+
+  async function handleConfirmAttendance() {
+    try {
+      if(!participant || !tripId) return
+
+      if(!guestName.trim() || !guestEmail.trim()) {
+        return Alert.alert("Confirm attendance", "Before confirming your attendance, fill in all the fields.")
+      }
+
+      if(!validateInput.email(guestEmail.trim())) {
+        return Alert.alert("Confirm attendance", "Invalid email.")
+      }
+
+      await participantsServer.confirmTripByParticipantId({
+        email: guestEmail.trim(),
+        name: guestName.trim(),
+        participantId: participant,
+      })
+
+      Alert.alert("Confirmation of attendance", "Your attendance has been confirmed successfully.")
+      await tripStorage.save(tripId)
+    } catch (error) {
+      console.log(error)
+      Alert.alert("Confirm attendance", "An error occurred while confirming your attendance.")
+    } finally {
+      setIsConfirmingAttendance(false)
     }
   }
 
@@ -229,6 +264,47 @@ const Trip = () => {
         </View>
       </Modal>
 
+
+      <Modal
+        title="Confirm presence"
+        visible={showModal === MODAL.CONFIRM_ATTENDANCE}
+      >
+        <View className="gap-4 mt-4">
+          <Text className="text-zinc-400 font-regular leading-6 my-2">
+            You have been invited to a trip to{" "}
+            <Text className='font-semibold text-zinc-100'>{tripDetails.destination}</Text>
+            {" "}on the dates of{" "}
+            <Text className='font-semibold text-zinc-100'>{dayjs(tripDetails.starts_at).format("MMMM")},{" "}</Text>
+            <Text className='font-semibold text-zinc-100'>{dayjs(tripDetails.starts_at).date()}</Text>
+            {" "}to{" "}
+            <Text className='font-semibold text-zinc-100'>{dayjs(tripDetails.ends_at).date()}.</Text>
+          </Text>
+
+          <Text className="text-zinc-400 font-regular leading-6 my-2">To confirm your presence on the trip, fill with your data:</Text>
+
+          <Input variant="secondary">
+            <User color={colors.zinc[400]} size={20} />
+            <InputField
+              placeholder="Your full name"
+              onChangeText={setGuestName}
+              value={guestName}
+            />
+          </Input>
+
+          <Input variant="secondary">
+            <Mail color={colors.zinc[400]} size={20} />
+            <InputField
+               placeholder="Your personal email"
+               onChangeText={setGuestEmail}
+               value={guestEmail}
+            />
+          </Input>
+
+          <Button isLoading={isConfirmingAttendance} onPress={handleConfirmAttendance}>
+            <ButtonTitle>Confirm presence</ButtonTitle>
+          </Button>
+        </View>
+      </Modal>
     </View>
   )
 }
