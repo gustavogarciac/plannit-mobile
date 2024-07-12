@@ -49,6 +49,10 @@ const Trip = () => {
     try {
       setIsLoadingTrip(true)
 
+      if(participant) {
+        setShowModal(MODAL.CONFIRM_ATTENDANCE)
+      }
+
       if (!tripId) {
         return router.back()
       }
