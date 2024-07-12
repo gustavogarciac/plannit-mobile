@@ -149,6 +149,26 @@ const Trip = () => {
     }
   }
 
+  async function handleRemoveTrip() {
+    try {
+      Alert.alert("Remove trip", "Are you sure you want to remove this trip?", [
+        {
+          text: "No",
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            await tripStorage.remove()
+            router.navigate("/")
+          }
+        }
+      ])
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     getTripDetails()
   }, [])
@@ -245,6 +265,19 @@ const Trip = () => {
               Update trip
             </ButtonTitle>
           </Button>
+
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 10,
+              backgroundColor: colors.zinc[800],
+              borderRadius: 8,
+            }}
+            onPress={handleRemoveTrip}
+          >
+            <Text className="text-red-400 text-center">Remove trip</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
 

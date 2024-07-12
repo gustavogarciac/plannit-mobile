@@ -210,12 +210,14 @@ export const Index = () => {
         { formStep === StepForm.ADD_EMAILS && (
           <>
             <View className="border-b py-3 border-zinc-800">
-              <Button variant='secondary' onPress={handlePreviousStepForm}>
-                <ButtonTitle>
-                  <Text>Change date/destination</Text>
-                </ButtonTitle>
-                <Settings2 size={20} color={colors.zinc[200]} />
-              </Button>
+              <View className='flex-row'>
+                <Button variant='secondary' onPress={handlePreviousStepForm}>
+                  <ButtonTitle>
+                    <Text>Change date/destination</Text>
+                  </ButtonTitle>
+                  <Settings2 size={20} color={colors.zinc[200]} />
+                </Button>
+              </View>
             </View>
 
             <Input>
@@ -236,12 +238,14 @@ export const Index = () => {
           </>
         )}
 
-        <Button onPress={handleNextStepForm} isLoading={isCreatingTrip}>
-          <ButtonTitle>
-              {formStep === StepForm.TRIP_DETAILS ? "Next" : "Confirm trip"}
-          </ButtonTitle>
-          <ArrowRight size={20} color={colors.purple[950]} />
-        </Button>
+        <View className="flex-row">
+          <Button onPress={handleNextStepForm} isLoading={isCreatingTrip}>
+            <ButtonTitle>
+                {formStep === StepForm.TRIP_DETAILS ? "Next" : "Confirm trip"}
+            </ButtonTitle>
+            <ArrowRight size={20} color={colors.purple[950]} />
+          </Button>
+        </View>
       </View>
 
       <Text className="text-zinc-500 font-regular text-center text-sm">
